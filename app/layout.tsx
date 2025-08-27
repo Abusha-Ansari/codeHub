@@ -18,8 +18,7 @@ export const metadata: Metadata = {
   title: "CodeHub - Your Web Development Platform",
   description: "Create, manage, and deploy your HTML, CSS, and JavaScript projects with version control and collaboration features.",
   keywords: ["web development", "HTML", "CSS", "JavaScript", "version control", "deployment"],
-  authors: [{ name: "CodeHub Team" }],
-  viewport: "width=device-width, initial-scale=1",
+  authors: [{ name: "CodeHub Team" }]
 };
 
 export default function RootLayout({

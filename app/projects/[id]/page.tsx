@@ -1,12 +1,32 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState, useCallback } from 'react';
+import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Navbar } from '@/components/navbar';
-import { ArrowLeft, FileText, Plus, Trash2, Save, Eye, History, Clock, Rocket, ExternalLink, Globe, Lock, GitCommit } from 'lucide-react';
+import {
+  ArrowLeft,
+  FileText,
+  Plus,
+  Trash2,
+  Save,
+  Eye,
+  History,
+  Clock,
+  Rocket,
+  ExternalLink,
+  Globe,
+  Lock,
+  GitCommit,
+} from 'lucide-react';
 import Link from 'next/link';
 
 interface ProjectFile {
@@ -53,7 +73,7 @@ interface Project {
 export default function ProjectEditorPage() {
   const params = useParams();
   const projectId = params.id as string;
-  
+
   const [project, setProject] = useState<Project | null>(null);
   const [activeFile, setActiveFile] = useState<ProjectFile | null>(null);
   const [fileContent, setFileContent] = useState('');
@@ -73,7 +93,10 @@ export default function ProjectEditorPage() {
   const [deploying, setDeploying] = useState(false);
   const [updatingVisibility, setUpdatingVisibility] = useState(false);
 
-  const fetchProject = async () => {
+  /** -----------------------------
+   *  Wrapped fetchers in useCallback
+   *  ----------------------------- */
+  const fetchProject = useCallback(async () => {
     try {
       const response = await fetch(`/api/projects/${projectId}`);
       if (!response.ok) {
@@ -81,17 +104,19 @@ export default function ProjectEditorPage() {
       }
       const data = await response.json();
       setProject(data);
-      
+
       // Initialize file contents map
       const contents: Record<string, string> = {};
       data.project_files?.forEach((file: ProjectFile) => {
         contents[file.id] = file.content;
       });
       setFileContents(contents);
-      
+
       // Set the first file as active by default
       if (data.project_files && data.project_files.length > 0) {
-        const indexFile = data.project_files.find((f: ProjectFile) => f.name === 'index.html') || data.project_files[0];
+        const indexFile =
+          data.project_files.find((f: ProjectFile) => f.name === 'index.html') ||
+          data.project_files[0];
         setActiveFile(indexFile);
         setFileContent(indexFile.content);
       }
@@ -100,9 +125,9 @@ export default function ProjectEditorPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId]);
 
-  const fetchCommits = async () => {
+  const fetchCommits = useCallback(async () => {
     try {
       const response = await fetch(`/api/projects/${projectId}/commits`);
       if (response.ok) {
@@ -112,9 +137,9 @@ export default function ProjectEditorPage() {
     } catch (err) {
       console.error('Failed to fetch commits:', err);
     }
-  };
+  }, [projectId]);
 
-  const fetchDeployments = async () => {
+  const fetchDeployments = useCallback(async () => {
     try {
       const response = await fetch(`/api/projects/${projectId}/deploy`);
       if (response.ok) {
@@ -124,8 +149,11 @@ export default function ProjectEditorPage() {
     } catch (err) {
       console.error('Failed to fetch deployments:', err);
     }
-  };
+  }, [projectId]);
 
+  /** -----------------------------
+   *  Effect runs once per projectId
+   *  ----------------------------- */
   useEffect(() => {
     if (projectId) {
       fetchProject();

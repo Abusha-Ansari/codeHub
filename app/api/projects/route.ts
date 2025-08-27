@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     // Get or create user in Supabase
     let user: { id: string } | null = null;
 
-    const { data: existingUser, error: userError } = await supabase
+    const { data: existingUser } = await supabase
       .from('users')
       .select('id')
       .eq('clerk_id', userId)
