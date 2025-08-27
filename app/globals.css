@@ -1,26 +1,325 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-background: 0 0% 100%;
+  --color-foreground: 232 20% 15%;
+  --color-card: 0 0% 100%;
+  --color-card-foreground: 232 20% 15%;
+  --color-popover: 0 0% 100%;
+  --color-popover-foreground: 232 20% 15%;
+  
+  /* Primary violet/blue accents */
+  --color-primary: 262 83% 58%; /* Vibrant violet */
+  --color-primary-foreground: 0 0% 100%;
+  
+  --color-secondary: 228 45% 95%; /* Soft bluish background */
+  --color-secondary-foreground: 232 20% 15%;
+  
+  --color-muted: 228 45% 95%;
+  --color-muted-foreground: 232 12% 45%;
+  
+  --color-accent: 260 75% 96%; /* Subtle violet tint */
+  --color-accent-foreground: 232 20% 15%;
+  
+  --color-destructive: 0 84.2% 60.2%;
+  --color-destructive-foreground: 210 40% 98%;
+  
+  --color-border: 228 32% 90%;
+  --color-input: 228 32% 90%;
+  --color-ring: 262 83% 58%;
+  
+  --radius: 0.6rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@theme dark {
+  --color-background: 232 20% 12%; /* Dark navy */
+  --color-foreground: 0 0% 100%;
+  --color-card: 232 20% 15%;
+  --color-card-foreground: 0 0% 100%;
+  --color-popover: 232 20% 15%;
+  --color-popover-foreground: 0 0% 100%;
+  
+  /* Deep violet/blue highlights */
+  --color-primary: 262 83% 66%; /* Bright violet accent */
+  --color-primary-foreground: 232 20% 15%;
+  
+  --color-secondary: 232 25% 22%;
+  --color-secondary-foreground: 0 0% 100%;
+  
+  --color-muted: 232 25% 22%;
+  --color-muted-foreground: 232 12% 65%;
+  
+  --color-accent: 262 45% 30%; /* Deep violet tint */
+  --color-accent-foreground: 0 0% 100%;
+  
+  --color-destructive: 0 62.8% 40.6%;
+  --color-destructive-foreground: 0 0% 100%;
+  
+  --color-border: 232 25% 22%;
+  --color-input: 232 25% 22%;
+  --color-ring: 262 83% 66%;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Enhanced Typography */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+    line-height: 1.2;
+  }
+  
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl;
+    letter-spacing: -0.02em;
+  }
+  
+  h2 {
+    @apply text-3xl md:text-4xl;
+    letter-spacing: -0.015em;
+  }
+  
+  h3 {
+    @apply text-2xl md:text-3xl;
+    letter-spacing: -0.01em;
+  }
+  
+  h4 {
+    @apply text-xl md:text-2xl;
+  }
+  
+  p {
+    @apply leading-relaxed;
+    line-height: 1.6;
+  }
+  
+  /* Enhanced Focus States */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+  
+  /* Smooth Scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-muted/30;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/30 rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
+  }
+  
+  /* Selection */
+  ::selection {
+    @apply bg-primary/20 text-primary-foreground;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* Enhanced Button Styles */
+  .btn-gradient {
+    @apply bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70;
+    @apply shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30;
+    @apply transition-all duration-300 ease-out;
+  }
+  
+  .btn-glass {
+    @apply bg-background/80 backdrop-blur-sm border border-border/50;
+    @apply hover:bg-background/90 hover:border-border;
+    @apply transition-all duration-300 ease-out;
+  }
+  
+  /* Enhanced Card Styles */
+  .card-elevated {
+    @apply shadow-lg shadow-black/5 dark:shadow-black/20;
+    @apply border border-border/50;
+    @apply transition-all duration-300 ease-out;
+  }
+  
+  .card-elevated:hover {
+    @apply shadow-xl shadow-black/10 dark:shadow-black/30;
+    @apply border-border;
+    transform: translateY(-2px);
+  }
+  
+  /* Enhanced Input Styles */
+  .input-modern {
+    @apply bg-background/50 backdrop-blur-sm;
+    @apply border border-border/50 focus:border-primary/50;
+    @apply focus:ring-2 focus:ring-primary/20;
+    @apply transition-all duration-200 ease-out;
+  }
+  
+  /* Gradient Text */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent;
+  }
+  
+  /* Animated Background */
+  .bg-animated {
+    background: linear-gradient(-45deg, 
+      hsl(var(--color-background)), 
+      hsl(var(--color-muted)/0.3), 
+      hsl(var(--color-accent)/0.1), 
+      hsl(var(--color-background))
+    );
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+  }
+  
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  /* Loading Animation */
+  .loading-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  
+  /* Floating Animation */
+  .float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+}
+
+/* Custom styles for CodeHub */
+.font-mono {
+  font-family: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* Code editor styles */
+.monaco-editor {
+  @apply rounded-md border;
+}
+
+/* Smooth transitions */
+.transition-theme {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-muted;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/30 rounded-full;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-muted-foreground/50;
+}
+
+/* File tree styles */
+.file-tree {
+  @apply space-y-1;
+}
+
+.file-tree-item {
+  @apply flex items-center space-x-2 p-2 rounded-md hover:bg-muted/50 cursor-pointer transition-colors;
+}
+
+.file-tree-item.active {
+  @apply bg-muted;
+}
+
+/* Commit history styles */
+.commit-item {
+  @apply border-l-2 border-muted pl-4 pb-4 relative;
+}
+
+.commit-item::before {
+  content: '';
+  @apply absolute -left-1.5 top-2 w-3 h-3 bg-primary rounded-full;
+}
+
+.commit-item:last-child {
+  @apply border-l-0;
+}
+
+/* Animation classes */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Loading spinner */
+.spinner {
+  @apply animate-spin rounded-full border-2 border-muted border-t-primary;
+}
+
+/* Project card hover effects */
+.project-card {
+  @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .mobile-hidden {
+    @apply hidden;
+  }
+  
+  .mobile-full {
+    @apply w-full;
+  }
 }
