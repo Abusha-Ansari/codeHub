@@ -13,6 +13,19 @@ export async function GET() {
 
     const supabase = createServerClient();
 
+    // First, get the user from the database
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('clerk_id', userId)
+      .single();
+
+    // If user doesn't exist, return empty array (no projects yet)
+    if (userError || !user) {
+      console.log('User not found in database, returning empty projects array');
+      return NextResponse.json([]);
+    }
+
     // Get user's projects
     const { data: projects, error } = await supabase
       .from('projects')
@@ -26,16 +39,7 @@ export async function GET() {
         created_at,
         updated_at
       `)
-      .eq(
-        'user_id',
-        (
-          await supabase
-            .from('users')
-            .select('id')
-            .eq('clerk_id', userId)
-            .single()
-        ).data?.id
-      )
+      .eq('user_id', user.id)
       .order('updated_at', { ascending: false });
 
     if (error) {
