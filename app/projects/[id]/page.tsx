@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { useUser } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -19,7 +20,6 @@ import {
   FileText,
   Plus,
   Trash2,
-
   Eye,
   History,
   Clock,
@@ -29,6 +29,8 @@ import {
   Lock,
   GitCommit,
   Upload,
+  GitFork,
+  AlertCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -70,11 +72,14 @@ interface Project {
   deployed_url: string | null;
   created_at: string;
   updated_at: string;
+  user_id: string;
   project_files: ProjectFile[];
 }
 
 export default function ProjectEditorPage() {
   const params = useParams();
+  const router = useRouter();
+  const { user } = useUser();
   const projectId = params.id as string;
 
   const [project, setProject] = useState<Project | null>(null);
@@ -96,6 +101,9 @@ export default function ProjectEditorPage() {
   const [, setDeployments] = useState<Deployment[]>([]);
   const [deploying, setDeploying] = useState(false);
   const [updatingVisibility, setUpdatingVisibility] = useState(false);
+  const [forking, setForking] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
+  const [, setCurrentUserId] = useState<string | null>(null);
 
   /** -----------------------------
    *  Wrapped fetchers in useCallback
@@ -108,6 +116,17 @@ export default function ProjectEditorPage() {
       }
       const data = await response.json();
       setProject(data);
+
+      // Check ownership
+      if (user?.id && data.user_id) {
+        // Get current user's database ID
+        const userResponse = await fetch('/api/user');
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          setCurrentUserId(userData.id);
+          setIsOwner(userData.id === data.user_id);
+        }
+      }
 
       // Initialize file contents map
       const contents: Record<string, string> = {};
@@ -129,7 +148,7 @@ export default function ProjectEditorPage() {
     } finally {
       setLoading(false);
     }
-  }, [projectId]);
+  }, [projectId, user?.id]);
 
   const fetchCommits = useCallback(async () => {
     try {
@@ -424,7 +443,7 @@ export default function ProjectEditorPage() {
   };
 
   const toggleProjectVisibility = async () => {
-    if (!project) return;
+    if (!project || !isOwner) return;
     
     setUpdatingVisibility(true);
     try {
@@ -449,6 +468,32 @@ export default function ProjectEditorPage() {
       alert(err instanceof Error ? err.message : 'Failed to update project visibility');
     } finally {
       setUpdatingVisibility(false);
+    }
+  };
+
+  const forkProject = async () => {
+    if (!project || isOwner) return;
+    
+    setForking(true);
+    try {
+      const response = await fetch(`/api/projects/${projectId}/fork`, {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to fork project');
+      }
+
+      const forkedProject = await response.json();
+      
+      // Redirect to the forked project
+      router.push(`/projects/${forkedProject.id}`);
+      alert('Project forked successfully! You can now edit your copy.');
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to fork project');
+    } finally {
+      setForking(false);
     }
   };
 
@@ -536,6 +581,12 @@ console.log('Hello from ${fileName}!');`;
               <div>
                 <h1 className="font-semibold text-lg">{project.name}</h1>
                 <p className="text-sm text-muted-foreground">{project.description || 'No description'}</p>
+                {!isOwner && (
+                  <div className="flex items-center gap-1 mt-1">
+                    <AlertCircle className="h-3 w-3 text-orange-500" />
+                    <span className="text-xs text-orange-600">Read-only mode - Fork to edit</span>
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -543,31 +594,65 @@ console.log('Hello from ${fileName}!');`;
                 <Eye className="h-4 w-4 mr-2" />
                 Preview
               </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setShowCommitForm(true)}
-              >
-                <GitCommit className="h-4 w-4 mr-2" />
-                Commit
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setShowHistory(!showHistory)}
-              >
-                <History className="h-4 w-4 mr-2" />
-                History ({commits.length})
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => deployProject()}
-                disabled={deploying}
-              >
-                <Rocket className="h-4 w-4 mr-2" />
-                {deploying ? 'Deploying...' : 'Deploy'}
-              </Button>
+              
+              {!isOwner ? (
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  onClick={forkProject}
+                  disabled={forking}
+                >
+                  <GitFork className="h-4 w-4 mr-2" />
+                  {forking ? 'Forking...' : 'Fork Project'}
+                </Button>
+              ) : (
+                <>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setShowCommitForm(true)}
+                  >
+                    <GitCommit className="h-4 w-4 mr-2" />
+                    Commit
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setShowHistory(!showHistory)}
+                  >
+                    <History className="h-4 w-4 mr-2" />
+                    History ({commits.length})
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => deployProject()}
+                    disabled={deploying}
+                  >
+                    <Rocket className="h-4 w-4 mr-2" />
+                    {deploying ? 'Deploying...' : 'Deploy'}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={toggleProjectVisibility}
+                    disabled={updatingVisibility}
+                  >
+                    {project.is_public ? (
+                      <>
+                        <Globe className="h-4 w-4 mr-2" />
+                        Public
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="h-4 w-4 mr-2" />
+                        Private
+                      </>
+                    )}
+                  </Button>
+                </>
+              )}
+              
               {project.deployed_url && (
                 <Button 
                   variant="outline" 
@@ -578,24 +663,6 @@ console.log('Hello from ${fileName}!');`;
                   Live Site
                 </Button>
               )}
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={toggleProjectVisibility}
-                disabled={updatingVisibility}
-              >
-                {project.is_public ? (
-                  <>
-                    <Globe className="h-4 w-4 mr-2" />
-                    Public
-                  </>
-                ) : (
-                  <>
-                    <Lock className="h-4 w-4 mr-2" />
-                    Private
-                  </>
-                )}
-              </Button>
             </div>
           </div>
         </div>
@@ -684,24 +751,26 @@ console.log('Hello from ${fileName}!');`;
             <div className="p-4">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-medium">Files</h3>
-                <div className="flex gap-1">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setShowFileUpload(true)}
-                    title="Upload File"
-                  >
-                    <Upload className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setShowNewFileForm(true)}
-                    title="Create New File"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
+                {isOwner && (
+                  <div className="flex gap-1">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setShowFileUpload(true)}
+                      title="Upload File"
+                    >
+                      <Upload className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setShowNewFileForm(true)}
+                      title="Create New File"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
               </div>
 
               {showNewFileForm && (
@@ -780,7 +849,7 @@ console.log('Hello from ${fileName}!');`;
                       <span className="text-sm">{getFileIcon(file.file_type)}</span>
                       <span className="text-sm">{file.name}</span>
                     </div>
-                    {file.name !== 'index.html' && (
+                    {isOwner && file.name !== 'index.html' && (
                       <Button
                         size="sm"
                         variant="ghost"
@@ -804,7 +873,7 @@ console.log('Hello from ${fileName}!');`;
               <div className="flex-1">
                 <CodeEditor
                   value={fileContent}
-                  onChange={(newContent) => {
+                  onChange={isOwner ? (newContent) => {
                     setFileContent(newContent);
                     setHasUnsavedChanges(true);
                     
@@ -815,11 +884,12 @@ console.log('Hello from ${fileName}!');`;
                         [activeFile.id]: newContent
                       }));
                     }
-                  }}
+                  } : () => {}}
                   language={activeFile.file_type === 'js' ? 'javascript' : activeFile.file_type as 'html' | 'css' | 'javascript'}
                   fileName={activeFile.name}
-                  onSave={saveAllFiles}
+                  onSave={isOwner ? saveAllFiles : undefined}
                   onPreview={openPreview}
+                  readOnly={!isOwner}
                   height="calc(100vh - 200px)"
                 />
               </div>

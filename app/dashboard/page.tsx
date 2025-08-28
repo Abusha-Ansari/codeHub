@@ -165,13 +165,13 @@ export default function DashboardPage() {
                   <Button size="sm" className="flex-1" disabled>
                     Deploy
                   </Button>
-                  <Button
+                  {/* <Button
                     variant="destructive"
                     size="sm"
                     onClick={() => deleteProject(project.id)}
                   >
                     <Trash2 className="h-4 w-4" />
-                  </Button>
+                  </Button> */}
                 </div>
               </CardContent>
             </Card>
