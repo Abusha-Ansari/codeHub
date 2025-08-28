@@ -1,65 +1,80 @@
 @import "tailwindcss";
 
+@import "tailwindcss";
+
 @theme {
-  --color-background: 0 0% 100%;
-  --color-foreground: 232 20% 15%;
-  --color-card: 0 0% 100%;
-  --color-card-foreground: 232 20% 15%;
-  --color-popover: 0 0% 100%;
-  --color-popover-foreground: 232 20% 15%;
-  
-  /* Primary violet/blue accents */
-  --color-primary: 262 83% 58%; /* Vibrant violet */
-  --color-primary-foreground: 0 0% 100%;
-  
-  --color-secondary: 228 45% 95%; /* Soft bluish background */
-  --color-secondary-foreground: 232 20% 15%;
-  
-  --color-muted: 228 45% 95%;
-  --color-muted-foreground: 232 12% 45%;
-  
-  --color-accent: 260 75% 96%; /* Subtle violet tint */
-  --color-accent-foreground: 232 20% 15%;
-  
-  --color-destructive: 0 84.2% 60.2%;
-  --color-destructive-foreground: 210 40% 98%;
-  
-  --color-border: 228 32% 90%;
-  --color-input: 228 32% 90%;
-  --color-ring: 262 83% 58%;
-  
-  --radius: 0.6rem;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius: 0.5rem;
 }
 
-@theme dark {
-  --color-background: 232 20% 12%; /* Dark navy */
-  --color-foreground: 0 0% 100%;
-  --color-card: 232 20% 15%;
-  --color-card-foreground: 0 0% 100%;
-  --color-popover: 232 20% 15%;
-  --color-popover-foreground: 0 0% 100%;
-  
-  /* Deep violet/blue highlights */
-  --color-primary: 262 83% 66%; /* Bright violet accent */
-  --color-primary-foreground: 232 20% 15%;
-  
-  --color-secondary: 232 25% 22%;
-  --color-secondary-foreground: 0 0% 100%;
-  
-  --color-muted: 232 25% 22%;
-  --color-muted-foreground: 232 12% 65%;
-  
-  --color-accent: 262 45% 30%; /* Deep violet tint */
-  --color-accent-foreground: 0 0% 100%;
-  
-  --color-destructive: 0 62.8% 40.6%;
-  --color-destructive-foreground: 0 0% 100%;
-  
-  --color-border: 232 25% 22%;
-  --color-input: 232 25% 22%;
-  --color-ring: 262 83% 66%;
+:root {
+  --background: oklch(0.9754 0.0084 325.6414);
+  --foreground: oklch(0.3257 0.1161 325.0372);
+  --card: oklch(0.9754 0.0084 325.6414);
+  --card-foreground: oklch(0.3257 0.1161 325.0372);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.3257 0.1161 325.0372);
+  --primary: oklch(0.5316 0.1409 355.1999);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.8696 0.0675 334.8991);
+  --secondary-foreground: oklch(0.4448 0.1341 324.7991);
+  --muted: oklch(0.9395 0.026 331.5454);
+  --muted-foreground: oklch(0.4924 0.1244 324.4523);
+  --accent: oklch(0.8696 0.0675 334.8991);
+  --accent-foreground: oklch(0.4448 0.1341 324.7991);
+  --destructive: oklch(0.5248 0.1368 20.8317);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.8568 0.0829 328.9110);
+  --input: oklch(0.8517 0.0558 336.6002);
+  --ring: oklch(0.5916 0.2180 0.5844);
 }
 
+.dark {
+  --background: oklch(0.2409 0.0201 307.5346);
+  --foreground: oklch(0.8398 0.0387 309.5391);
+  --card: oklch(0.2803 0.0232 307.5413);
+  --card-foreground: oklch(0.8456 0.0302 341.4597);
+  --popover: oklch(0.1548 0.0132 338.9015);
+  --popover-foreground: oklch(0.9647 0.0091 341.8035);
+  --primary: oklch(0.4607 0.1853 4.0994);
+  --primary-foreground: oklch(0.8560 0.0618 346.3684);
+  --secondary: oklch(0.3137 0.0306 310.0610);
+  --secondary-foreground: oklch(0.8483 0.0382 307.9613);
+  --muted: oklch(0.2634 0.0219 309.4748);
+  --muted-foreground: oklch(0.7940 0.0372 307.1032);
+  --accent: oklch(0.3649 0.0508 308.4911);
+  --accent-foreground: oklch(0.9647 0.0091 341.8035);
+  --destructive: oklch(0.2258 0.0524 12.6119);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.3286 0.0154 343.4461);
+  --input: oklch(0.3387 0.0195 332.8347);
+  --ring: oklch(0.5916 0.2180 0.5844);
+}
 
 @layer base {
   * {

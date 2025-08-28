@@ -47,12 +47,12 @@ export function Navbar() {
 
           {isSignedIn ? (
             <div className="flex items-center space-x-3">
-              <Button asChild size="sm">
+              {/* <Button asChild size="sm">
                 <Link href="/projects/new">
                   <Plus className="h-4 w-4 mr-2" />
                   New Project
                 </Link>
-              </Button>
+              </Button> */}
               <UserButton afterSignOutUrl="/" />
             </div>
           ) : (
