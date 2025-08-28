@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-@import "tailwindcss";
-
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -32,49 +30,66 @@
   --radius: 0.5rem;
 }
 
+/* 🌞 Light Mode */
 :root {
-  --background: oklch(0.9754 0.0084 325.6414);
-  --foreground: oklch(0.3257 0.1161 325.0372);
-  --card: oklch(0.9754 0.0084 325.6414);
-  --card-foreground: oklch(0.3257 0.1161 325.0372);
+  --background: oklch(0.98 0 0);         /* almost white */
+  --foreground: oklch(0.22 0.02 275);    /* near-black with a hint of violet */
+  --card: oklch(1 0 0);                  /* pure white */
+  --card-foreground: oklch(0.22 0.02 275);
+
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.3257 0.1161 325.0372);
-  --primary: oklch(0.5316 0.1409 355.1999);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.8696 0.0675 334.8991);
-  --secondary-foreground: oklch(0.4448 0.1341 324.7991);
-  --muted: oklch(0.9395 0.026 331.5454);
-  --muted-foreground: oklch(0.4924 0.1244 324.4523);
-  --accent: oklch(0.8696 0.0675 334.8991);
-  --accent-foreground: oklch(0.4448 0.1341 324.7991);
-  --destructive: oklch(0.5248 0.1368 20.8317);
+  --popover-foreground: oklch(0.22 0.02 275);
+
+  --primary: oklch(0.55 0.23 280);       /* vibrant violet */
+  --primary-foreground: oklch(1 0 0);    /* white */
+
+  --secondary: oklch(0.94 0.03 280);     /* light violet gray */
+  --secondary-foreground: oklch(0.28 0.07 280);
+
+  --muted: oklch(0.93 0.02 280);
+  --muted-foreground: oklch(0.45 0.05 280);
+
+  --accent: oklch(0.92 0.06 280);        /* soft violet tint */
+  --accent-foreground: oklch(0.25 0.07 280);
+
+  --destructive: oklch(0.45 0.20 20);    /* muted red */
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.8568 0.0829 328.9110);
-  --input: oklch(0.8517 0.0558 336.6002);
-  --ring: oklch(0.5916 0.2180 0.5844);
+
+  --border: oklch(0.88 0.02 280);
+  --input: oklch(0.88 0.02 280);
+  --ring: oklch(0.55 0.23 280);          /* same as primary */
 }
 
+/* 🌚 Dark Mode */
 .dark {
-  --background: oklch(0.2409 0.0201 307.5346);
-  --foreground: oklch(0.8398 0.0387 309.5391);
-  --card: oklch(0.2803 0.0232 307.5413);
-  --card-foreground: oklch(0.8456 0.0302 341.4597);
-  --popover: oklch(0.1548 0.0132 338.9015);
-  --popover-foreground: oklch(0.9647 0.0091 341.8035);
-  --primary: oklch(0.4607 0.1853 4.0994);
-  --primary-foreground: oklch(0.8560 0.0618 346.3684);
-  --secondary: oklch(0.3137 0.0306 310.0610);
-  --secondary-foreground: oklch(0.8483 0.0382 307.9613);
-  --muted: oklch(0.2634 0.0219 309.4748);
-  --muted-foreground: oklch(0.7940 0.0372 307.1032);
-  --accent: oklch(0.3649 0.0508 308.4911);
-  --accent-foreground: oklch(0.9647 0.0091 341.8035);
-  --destructive: oklch(0.2258 0.0524 12.6119);
+  --background: oklch(0.15 0.01 275);    /* deep near-black with violet hue */
+  --foreground: oklch(0.96 0.01 280);    /* soft white */
+  --card: oklch(0.20 0.015 275);
+  --card-foreground: oklch(0.96 0.01 280);
+
+  --popover: oklch(0.20 0.015 275);
+  --popover-foreground: oklch(0.96 0.01 280);
+
+  --primary: oklch(0.65 0.23 280);       /* glowing violet */
+  --primary-foreground: oklch(0.10 0.01 275); /* near-black */
+
+  --secondary: oklch(0.28 0.05 280);
+  --secondary-foreground: oklch(0.96 0.01 280);
+
+  --muted: oklch(0.25 0.02 280);
+  --muted-foreground: oklch(0.75 0.04 280);
+
+  --accent: oklch(0.35 0.10 280);        /* rich violet accent */
+  --accent-foreground: oklch(0.98 0 0);  /* white */
+
+  --destructive: oklch(0.35 0.20 20);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.3286 0.0154 343.4461);
-  --input: oklch(0.3387 0.0195 332.8347);
-  --ring: oklch(0.5916 0.2180 0.5844);
+
+  --border: oklch(0.25 0.01 275);
+  --input: oklch(0.25 0.01 275);
+  --ring: oklch(0.65 0.23 280);          /* violet glow */
 }
+
 
 @layer base {
   * {
