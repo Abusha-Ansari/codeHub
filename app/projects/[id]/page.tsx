@@ -11,13 +11,15 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { CodeEditor } from '@/components/ui/code-editor';
+import { FileUpload } from '@/components/ui/file-upload';
 import { Navbar } from '@/components/navbar';
 import {
   ArrowLeft,
   FileText,
   Plus,
   Trash2,
-  Save,
+
   Eye,
   History,
   Clock,
@@ -26,6 +28,7 @@ import {
   Globe,
   Lock,
   GitCommit,
+  Upload,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -78,10 +81,11 @@ export default function ProjectEditorPage() {
   const [activeFile, setActiveFile] = useState<ProjectFile | null>(null);
   const [fileContent, setFileContent] = useState('');
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [, setSaving] = useState(false);
   const [, setHasUnsavedChanges] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showNewFileForm, setShowNewFileForm] = useState(false);
+  const [showFileUpload, setShowFileUpload] = useState(false);
   const [newFileName, setNewFileName] = useState('');
   const [commits, setCommits] = useState<Commit[]>([]);
   const [showCommitForm, setShowCommitForm] = useState(false);
@@ -255,6 +259,41 @@ export default function ProjectEditorPage() {
       setFileContent(data.content);
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to create file');
+    }
+  };
+
+  const handleFileUpload = async (file: File, content: string) => {
+    try {
+      const response = await fetch(`/api/projects/${projectId}/files`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: file.name,
+          content: content,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to upload file');
+      }
+
+      // Add the new file to the project
+      if (project) {
+        setProject({
+          ...project,
+          project_files: [...project.project_files, data],
+        });
+      }
+
+      setShowFileUpload(false);
+      setActiveFile(data);
+      setFileContent(data.content);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to upload file');
     }
   };
 
@@ -645,13 +684,24 @@ console.log('Hello from ${fileName}!');`;
             <div className="p-4">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-medium">Files</h3>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setShowNewFileForm(true)}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
+                <div className="flex gap-1">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setShowFileUpload(true)}
+                    title="Upload File"
+                  >
+                    <Upload className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setShowNewFileForm(true)}
+                    title="Create New File"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
 
               {showNewFileForm && (
@@ -680,6 +730,25 @@ console.log('Hello from ${fileName}!');`;
                         setShowNewFileForm(false);
                         setNewFileName('');
                       }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {showFileUpload && (
+                <div className="mb-4">
+                  <FileUpload
+                    onFileUpload={handleFileUpload}
+                    acceptedFileTypes={['.html', '.css', '.js']}
+                    maxFileSize={1024 * 1024} // 1MB
+                  />
+                  <div className="mt-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setShowFileUpload(false)}
                     >
                       Cancel
                     </Button>
@@ -732,49 +801,28 @@ console.log('Hello from ${fileName}!');`;
           {/* Editor */}
           <div className="flex-1 flex flex-col">
             {activeFile ? (
-              <>
-                <div className="border-b bg-card px-4 py-2 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span>{getFileIcon(activeFile.file_type)}</span>
-                    <span className="font-medium">{activeFile.name}</span>
-                  </div>
-                  <Button
-                    size="sm"
-                    onClick={saveAllFiles}
-                    disabled={saving}
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    {saving ? 'Saving All...' : 'Save All Files'}
-                  </Button>
-                </div>
-                <div className="flex-1 p-4">
-                  <textarea
-                    value={fileContent}
-                    onChange={(e) => {
-                      const newContent = e.target.value;
-                      setFileContent(newContent);
-                      setHasUnsavedChanges(true);
-                      
-                      // Update the file contents map in real-time
-                      if (activeFile) {
-                        setFileContents(prev => ({
-                          ...prev,
-                          [activeFile.id]: newContent
-                        }));
-                      }
-                    }}
-                    onKeyDown={(e) => {
-                      // Ctrl+S or Cmd+S to save
-                      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-                        e.preventDefault();
-                        saveAllFiles();
-                      }
-                    }}
-                    className="w-full h-full resize-none font-mono text-sm bg-background border rounded p-4 focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Start coding..."
-                  />
-                </div>
-              </>
+              <div className="flex-1">
+                <CodeEditor
+                  value={fileContent}
+                  onChange={(newContent) => {
+                    setFileContent(newContent);
+                    setHasUnsavedChanges(true);
+                    
+                    // Update the file contents map in real-time
+                    if (activeFile) {
+                      setFileContents(prev => ({
+                        ...prev,
+                        [activeFile.id]: newContent
+                      }));
+                    }
+                  }}
+                  language={activeFile.file_type === 'js' ? 'javascript' : activeFile.file_type as 'html' | 'css' | 'javascript'}
+                  fileName={activeFile.name}
+                  onSave={saveAllFiles}
+                  onPreview={openPreview}
+                  height="calc(100vh - 200px)"
+                />
+              </div>
             ) : (
               <div className="flex-1 flex items-center justify-center">
                 <div className="text-center">

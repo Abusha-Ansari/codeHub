@@ -2,7 +2,7 @@
 
 import { UserButton, useUser } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
-import { Moon, Sun, Code2, Plus } from 'lucide-react';
+import { Moon, Sun, Code2 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
 
