@@ -40,6 +40,7 @@ export async function GET(
         last_commit_id,
         created_at,
         updated_at,
+        user_id,
         project_files (
           id,
           name,
@@ -52,11 +53,17 @@ export async function GET(
         )
       `)
       .eq('id', id)
-      .eq('user_id', user.id)
       .single();
 
     if (projectError || !project) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    }
+
+    // Check if user can access this project (owner or public project)
+    const canAccess = project.user_id === user.id || project.is_public;
+    
+    if (!canAccess) {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
     return NextResponse.json(project);

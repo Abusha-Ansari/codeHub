@@ -15,13 +15,12 @@ export async function GET() {
         deployed_url,
         created_at,
         updated_at,
-        users (
+        users!inner (
           id,
           email,
           first_name,
           last_name
-        ),
-        project_files (count)
+        )
       `)
       .eq('is_public', true)
       .order('updated_at', { ascending: false });
@@ -31,16 +30,24 @@ export async function GET() {
       return NextResponse.json({ error: 'Failed to fetch projects' }, { status: 500 });
     }
 
-    // Transform the data to include file count
-    const transformedProjects = projects?.map(project => ({
-      ...project,
-      _count: {
-        project_files: project.project_files?.length || 0
-      },
-      project_files: undefined // Remove the raw project_files array
-    })) || [];
+    // Get file counts for each project separately
+    const projectsWithCounts = await Promise.all(
+      (projects || []).map(async (project) => {
+        const { count } = await supabase
+          .from('project_files')
+          .select('*', { count: 'exact', head: true })
+          .eq('project_id', project.id);
+        
+        return {
+          ...project,
+          _count: {
+            project_files: count || 0
+          }
+        };
+      })
+    );
 
-    return NextResponse.json(transformedProjects);
+    return NextResponse.json(projectsWithCounts);
   } catch (error) {
     console.error('Error in GET /api/explore:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
