@@ -22,9 +22,14 @@ export function Navbar() {
         {/* Navigation Links */}
         <div className="hidden md:flex items-center space-x-6">
           {isSignedIn && (
-            <Link href="/dashboard" className="text-foreground hover:text-primary transition-colors">
-              Dashboard
-            </Link>
+            <>
+              <Link href="/dashboard" className="text-foreground hover:text-primary transition-colors">
+                Dashboard
+              </Link>
+              <Link href="/profile" className="text-foreground hover:text-primary transition-colors">
+                Profile
+              </Link>
+            </>
           )}
           <Link href="/explore" className="text-foreground hover:text-primary transition-colors">
             Explore
