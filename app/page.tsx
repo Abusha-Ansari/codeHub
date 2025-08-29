@@ -27,19 +27,19 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row gap-6 justify-center animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-400">
             {isSignedIn ? (
               <Link href="/dashboard">
-                <Button size="lg" className="text-lg font-semibold">
+                <Button size="lg" className="text-lg font-semibold mb-6">
                   Go to Dashboard
                 </Button>
               </Link>
             ) : (
               <>
                 <Link href="/sign-up">
-                  <Button size="lg" className="text-lg font-semibold">
+                  <Button size="lg" className="text-lg font-semibold mb-6">
                     Get Started Free
                   </Button>
                 </Link>
                 <Link href="/sign-in">
-                  <Button variant="outline" size="lg" className="text-lg font-semibold">
+                  <Button variant="outline" size="lg" className="text-lg font-semibold mb-6">
                     Sign In
                   </Button>
                 </Link>
