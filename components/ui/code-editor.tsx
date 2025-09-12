@@ -1,11 +1,11 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import { useTheme } from 'next-themes';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Save, Eye, Download, Zap, ZapOff } from 'lucide-react';
+import { Save, Eye, Download, Zap, ZapOff, Loader2 } from 'lucide-react';
 import type * as monacoType from 'monaco-editor';
 
 interface CodeEditorProps {
@@ -34,6 +34,8 @@ export function CodeEditor({
   const { theme } = useTheme();
   const editorRef = useRef<monacoType.editor.IStandaloneCodeEditor | null>(null);
   const [autocompleteEnabled, setAutocompleteEnabled] = useState(enableAutocomplete);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showSaved, setShowSaved] = useState(false);
 
   const handleEditorDidMount = (
     editor: monacoType.editor.IStandaloneCodeEditor,
@@ -59,7 +61,7 @@ export function CodeEditor({
 
     // Keyboard shortcut: Ctrl/Cmd + S
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
-      onSave?.();
+      handleSave();
     });
 
     // HTML language config
@@ -253,6 +255,22 @@ export function CodeEditor({
     });
   };
 
+  const handleSave = async () => {
+    if (isSaving || !onSave) return;
+    
+    setIsSaving(true);
+    try {
+      await Promise.resolve(onSave());
+      setShowSaved(true);
+      // Reset the saved state after 2 seconds
+      setTimeout(() => setShowSaved(false), 2000);
+    } catch (error) {
+      console.error('Error saving file:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const downloadFile = () => {
     const blob = new Blob([value], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -316,10 +334,37 @@ export function CodeEditor({
           </Button>
 
           {onSave && !readOnly && (
-            <Button variant="default" size="sm" onClick={onSave}>
-              <Save className="h-4 w-4 mr-1" />
-              Save
-            </Button>
+            <div className="relative">
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={handleSave}
+                disabled={isSaving}
+                className="min-w-[80px]"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Saving
+                  </>
+                ) : showSaved ? (
+                  <>
+                    <Save className="h-4 w-4 mr-1 text-green-500" />
+                    <span className="text-green-500">Saved!</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-1" />
+                    Save
+                  </>
+                )}
+              </Button>
+              {showSaved && (
+                <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded-md whitespace-nowrap">
+                  Changes saved successfully
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>
