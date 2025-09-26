@@ -353,6 +353,11 @@ export default function ProjectEditorPage() {
 
     setCommitting(true);
     try {
+      // Save the current file before committing
+      if (activeFile) {
+        await saveAllFiles();
+      }
+
       const response = await fetch(`/api/projects/${projectId}/commits`, {
         method: 'POST',
         headers: {
@@ -372,6 +377,10 @@ export default function ProjectEditorPage() {
       setCommits([newCommit, ...commits]);
       setCommitMessage('');
       setShowCommitForm(false);
+      
+      // Refresh project data to get the latest commit info
+      await fetchProject();
+      setHasUnsavedChanges(false);
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to create commit');
     } finally {
